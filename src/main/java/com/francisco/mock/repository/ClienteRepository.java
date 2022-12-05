@@ -2,14 +2,18 @@ package com.francisco.mock.repository;
 
 import com.francisco.mock.model.Cliente;
 
+import java.util.List;
+
 public interface ClienteRepository {
-    public Cliente getById(Integer idCliente);
+    Cliente getById(Integer idCliente);
 
-    public Cliente getClienteByCpf(String cpf);
+    Cliente getClienteByCpf(String cpf);
 
-    public Cliente salvar(Cliente cliente);
+    List<Cliente> getClienteAluguelAtrasado();
 
-    public boolean atualizar(Cliente cliente);
+    Cliente salvar(Cliente cliente);
 
-    public boolean deletar(Cliente cliente);
+    boolean atualizar(Cliente cliente);
+
+    boolean deletar(Cliente cliente);
 }

@@ -1,11 +1,13 @@
 package com.francisco.mock.service;
 
 import com.francisco.mock.model.Cliente;
+import com.francisco.mock.model.EmailApi;
 import com.francisco.mock.repository.ClienteRepository;
 import com.francisco.mock.repository.ClienteRepositoryImpl;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.util.List;
 import java.util.Objects;
 
 public class ClienteService {
@@ -42,6 +44,18 @@ public class ClienteService {
 
     public boolean removerCliente(Cliente cliente){
         return clienteRepository.deletar(cliente);
+    }
+
+    public void notificarAtrasados(){
+        List<Cliente> atrasados = clienteRepository.getClienteAluguelAtrasado();
+        atrasados.forEach(atrasado -> {
+            try{
+                EmailApi.sendEmail(atrasado.getEmail(), "Seu aluguel esta atrasado.");
+            }catch (Exception e){
+                System.out.println("Error ao enviar email para " + atrasado.getEmail());
+            }
+        });
+
     }
 
 }

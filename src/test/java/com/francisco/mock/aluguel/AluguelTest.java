@@ -1,6 +1,7 @@
 package com.francisco.mock.aluguel;
 
 import com.francisco.mock.model.Aluguel;
+import com.francisco.mock.model.Locacao;
 import com.francisco.mock.repository.AluguelRepositoryImpl;
 import com.francisco.mock.service.AluguelService;
 import org.junit.After;
@@ -15,9 +16,9 @@ import javax.persistence.Persistence;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(SpringRunner.class)
 public class AluguelTest {
@@ -33,6 +34,12 @@ public class AluguelTest {
         aluguel.setDataVencimento(LocalDateTime.now());
         aluguel.setDataPagamento(LocalDateTime.now().minusDays(2));
         return aluguel;
+    }
+
+    public Locacao getLocacaoDoAluguelParaTest(){
+        Locacao locacao = new Locacao();
+        locacao.setValorAluguel(2000.0);
+        return locacao;
     }
 
     public Aluguel getNovoAluguelParaTest(){
@@ -139,7 +146,7 @@ public class AluguelTest {
     }
 
     @Test
-    public void verificaPagamentoValido(){
+    public void verificaPagamentoValidoATV03(){
         Aluguel aluguel = getAluguelParaTest();
 
         boolean resultadoServico = aluguelServico.atualizarAluguel(aluguel);
@@ -147,12 +154,22 @@ public class AluguelTest {
     }
 
     @Test
-    public void verificaPagamentoInvalido(){
+    public void verificaPagamentoInvalidoATV03(){
         Aluguel aluguel = getAluguelPagamentoInvalidoParaTest();
         Throwable thrown = catchThrowable(() -> aluguelServico.atualizarAluguel(aluguel));
 
         assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Valor pago inválido");
+    }
+
+    public void verificaPagamentoInvalido(){
+        Aluguel aluguel = getAluguelParaTest();
+        Locacao locacaoDoAluguel = getLocacaoDoAluguelParaTest();
+        when(aluguelRepository.buscarLocacaoDoAluguel(aluguel)).thenReturn(locacaoDoAluguel);
+
+        Throwable thrown = catchThrowable(() -> aluguelServico.atualizarAluguel(aluguel));
+
+        assertThat(thrown).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("O valor não é o suficiente para pagar o aluguel.");
     }
 
 }
